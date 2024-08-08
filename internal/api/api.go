@@ -71,3 +71,36 @@ func NewHandler(q *pgstore.Queries) http.Handler {
 	a.r = r
 	return a
 }
+
+const (
+	MessageKindMessageCreated = "message_created"
+)
+
+type MessageMessageCreated struct {
+	ID      string `json:"id"`
+	Message string `json:"message"`
+}
+
+type Message struct {
+	Kind   string `json:"kind"`
+	Value  any    `json:"value"`
+	RoomID string `json:"-"`
+}
+
+func (h apiHandler) notifyClients(msg Message) {
+	h.mu.Lock()
+
+	defer h.mu.Unlock()
+
+	subscribers, ok := h.subscribers[msg.RoomID]
+	if !ok || len(subscribers) == 0 {
+		return
+	}
+
+	for conn, cancel := range subscribers {
+		if err := conn.WriteJSON(msg); err != nil {
+			slog.Error("Failed to send message to client", "error", err)
+			cancel()
+		}
+	}
+}
