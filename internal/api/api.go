@@ -153,3 +153,42 @@ func (h apiHandler) handleSubscribe(w http.ResponseWriter, r *http.Request) {
 	delete(h.subscribers[rawRoomID], c)
 	h.mu.Unlock()
 }
+
+func (h apiHandler) handleCreateRoom(w http.ResponseWriter, r *http.Request) {
+	type _body struct {
+		Theme string `json:"theme"`
+	}
+	var body _body
+
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "Invalid json", http.StatusBadRequest)
+		return
+	}
+
+	roomID, err := h.q.InsertRoom(r.Context(), body.Theme)
+	if err != nil {
+		slog.Error("Failed to insert room", "error", err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	type response struct {
+		ID string `json:"id"`
+	}
+
+	data, err := json.Marshal(response{ID: roomID.String()})
+	if err != nil {
+		slog.Error("Failed to Marshal", "error", err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(data)
+	if err != nil {
+		slog.Error("Failed to Marshal", "error", err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+}
