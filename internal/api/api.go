@@ -460,4 +460,66 @@ func (h apiHandler) handleReactToMessage(w http.ResponseWriter, r *http.Request)
 	})
 }
 
+func (h apiHandler) handleRemoveReactFromMessage(w http.ResponseWriter, r *http.Request) {
+	rawRoomID := chi.URLParam(r, "room_id")
+	_, err := uuid.Parse(rawRoomID)
+	if err != nil {
+		http.Error(w, "Invalid room ID", http.StatusBadRequest)
+		return
+	}
+
+	rawMessageID := chi.URLParam(r, "message_id")
+	messageID, err := uuid.Parse(rawMessageID)
+	if err != nil {
+		http.Error(w, "Invalid message ID", http.StatusBadRequest)
+		return
+	}
+
+	message, err := h.q.GetMessage(r.Context(), messageID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			http.Error(w, "Message not found", http.StatusBadRequest)
+			return
+		}
+
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	reaction_count, err := h.q.RemoveReactionFromMessage(r.Context(), messageID)
+	if err != nil {
+		slog.Error("Failed to remove reaction from message", "error", err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	type response struct {
+		ReactionCount int64 `json:"reaction_count"`
+	}
+
+	data, err := json.Marshal(response{ReactionCount: reaction_count})
+	if err != nil {
+		slog.Error("Failed to Marshal", "error", err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(data)
+	if err != nil {
+		slog.Error("Failed to Write", "error", err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	go h.notifyClients(MessageWS{
+		Kind:   MessageKindMessageRemoveReact,
+		RoomID: rawRoomID,
+		Value: MessageMessageCreated{
+			ID:      messageID.String(),
+			Message: message.Message,
+		},
+	})
+}
+
 }
