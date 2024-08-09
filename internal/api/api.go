@@ -73,7 +73,10 @@ func NewHandler(q *pgstore.Queries) http.Handler {
 }
 
 const (
-	MessageKindMessageCreated = "message_created"
+	MessageKindMessageCreated     = "message_created"
+	MessageKindMessageReacted     = "message_reacted"
+	MessageKindMessageAnswered    = "message_answered"
+	MessageKindMessageRemoveReact = "message_remove_react"
 )
 
 type MessageMessageCreated struct {
