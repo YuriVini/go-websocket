@@ -300,7 +300,6 @@ func (h apiHandler) handleCreateRoomMesssages(w http.ResponseWriter, r *http.Req
 	}
 
 	_, err = h.q.GetRoom(r.Context(), roomID)
-
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			http.Error(w, "Room not found", http.StatusBadRequest)
