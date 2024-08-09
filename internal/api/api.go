@@ -355,4 +355,47 @@ func (h apiHandler) handleCreateRoomMesssages(w http.ResponseWriter, r *http.Req
 		},
 	})
 }
+
+func (h apiHandler) handleGetRoomMessage(w http.ResponseWriter, r *http.Request) {
+	rawMessageID := chi.URLParam(r, "message_id")
+
+	messageID, err := uuid.Parse(rawMessageID)
+	if err != nil {
+		http.Error(w, "Invalid message ID", http.StatusBadRequest)
+		return
+	}
+
+	message, err := h.q.GetMessage(r.Context(), messageID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			http.Error(w, "Message not found", http.StatusBadRequest)
+			return
+		}
+		slog.Error("Failed to GetMessage", "error", err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	data, err := json.Marshal(Message{
+		ID:            message.ID.String(),
+		RoomID:        message.RoomID.String(),
+		Message:       message.Message,
+		ReactionCount: message.ReactionCount,
+		Answered:      message.Answered,
+	})
+	if err != nil {
+		slog.Error("Failed to Marshal", "error", err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(data)
+	if err != nil {
+		slog.Error("Failed to Write", "error", err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+}
+
 }
