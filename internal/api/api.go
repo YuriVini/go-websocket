@@ -87,7 +87,19 @@ type Message struct {
 	RoomID string `json:"-"`
 }
 
-func (h apiHandler) notifyClients(msg Message) {
+type Room struct {
+	ID    string `json:"id"`
+	Theme string `json:"theme"`
+}
+
+type Message struct {
+	ID            string `json:"id"`
+	RoomID        string `json:"room_id"`
+	Message       string `json:"message"`
+	ReactionCount int64  `json:"reaction_count"`
+	Answered      bool   `json:"answered"`
+}
+
 	h.mu.Lock()
 
 	defer h.mu.Unlock()
