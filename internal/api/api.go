@@ -81,7 +81,7 @@ type MessageMessageCreated struct {
 	Message string `json:"message"`
 }
 
-type Message struct {
+type MessageWS struct {
 	Kind   string `json:"kind"`
 	Value  any    `json:"value"`
 	RoomID string `json:"-"`
@@ -100,6 +100,7 @@ type Message struct {
 	Answered      bool   `json:"answered"`
 }
 
+func (h apiHandler) notifyClients(msg MessageWS) {
 	h.mu.Lock()
 
 	defer h.mu.Unlock()
@@ -255,12 +256,12 @@ func (h apiHandler) handleCreateRoomMesssages(w http.ResponseWriter, r *http.Req
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(data)
 	if err != nil {
-		slog.Error("Failed to Marshal", "error", err)
+		slog.Error("Failed to Write", "error", err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
 
-	go h.notifyClients(Message{
+	go h.notifyClients(MessageWS{
 		Kind:   MessageKindMessageCreated,
 		RoomID: rawRoomID,
 		Value: MessageMessageCreated{
