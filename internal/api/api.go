@@ -473,8 +473,8 @@ func (h apiHandler) handleRemoveReactFromMessage(w http.ResponseWriter, r *http.
 		Kind:   MessageKindMessageRemoveReact,
 		RoomID: rawRoomID,
 		Value: MessageMessageCreated{
-			ID:      messageID.String(),
-			Message: message.Message,
+			ID:    messageID.String(),
+			Count: reaction_count,
 		},
 	})
 }
