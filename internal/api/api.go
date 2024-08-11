@@ -91,11 +91,6 @@ type MessageWS struct {
 	RoomID string `json:"-"`
 }
 
-type Room struct {
-	ID    string `json:"id"`
-	Theme string `json:"theme"`
-}
-
 type Message struct {
 	ID            string `json:"id"`
 	RoomID        string `json:"room_id"`
