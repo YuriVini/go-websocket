@@ -211,21 +211,7 @@ func (h apiHandler) handleGetRooms(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var response []Room
-
 	data, err := json.Marshal(rooms)
-	if err != nil {
-		slog.Error("Failed to Marshal", "error", err)
-		http.Error(w, "Something went wrong", http.StatusInternalServerError)
-		return
-	}
-	err = json.Unmarshal([]byte(data), &response)
-	if err != nil {
-		slog.Error("Failed to Unmarshal", "error", err)
-		http.Error(w, "Something went wrong", http.StatusInternalServerError)
-		return
-	}
-	data_formatted, err := json.Marshal(response)
 	if err != nil {
 		slog.Error("Failed to Marshal", "error", err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
@@ -233,7 +219,7 @@ func (h apiHandler) handleGetRooms(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(data_formatted)
+	_, err = w.Write(data)
 	if err != nil {
 		slog.Error("Failed to Write", "error", err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
