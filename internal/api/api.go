@@ -82,6 +82,7 @@ const (
 type MessageMessageCreated struct {
 	ID      string `json:"id"`
 	Message string `json:"message"`
+	Count   int64  `json:"count"`
 }
 
 type MessageWS struct {
