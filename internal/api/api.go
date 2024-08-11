@@ -381,17 +381,6 @@ func (h apiHandler) handleReactToMessage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	message, err := h.q.GetMessage(r.Context(), messageID)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			http.Error(w, "Message not found", http.StatusBadRequest)
-			return
-		}
-
-		http.Error(w, "Something went wrong", http.StatusInternalServerError)
-		return
-	}
-
 	reaction_count, err := h.q.ReactToMessage(r.Context(), messageID)
 	if err != nil {
 		slog.Error("Failed to react message", "error", err)
