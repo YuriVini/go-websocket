@@ -411,8 +411,8 @@ func (h apiHandler) handleReactToMessage(w http.ResponseWriter, r *http.Request)
 		Kind:   MessageKindMessageReacted,
 		RoomID: rawRoomID,
 		Value: MessageMessageCreated{
-			ID:      messageID.String(),
-			Message: message.Message,
+			ID:    messageID.String(),
+			Count: reaction_count,
 		},
 	})
 }
