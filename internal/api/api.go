@@ -389,10 +389,10 @@ func (h apiHandler) handleReactToMessage(w http.ResponseWriter, r *http.Request)
 	}
 
 	type response struct {
-		ReactionCount int64 `json:"reaction_count"`
+		Count int64 `json:"count"`
 	}
 
-	data, err := json.Marshal(response{ReactionCount: reaction_count})
+	data, err := json.Marshal(response{Count: reaction_count})
 	if err != nil {
 		slog.Error("Failed to Marshal", "error", err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
