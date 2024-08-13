@@ -36,3 +36,12 @@ DATABASE_HOST=""
 $ go run cmd/websocket/main.go
 ```
 Access API at http://localhost:XXXX and start your websocket connection at ws://localhost:XXXX
+
+# :closed_book: License
+
+Released in 2024 :closed_book: License
+
+Made with love by [Yuri Vincius](https://github.com/YuriVini) 🚀.
+
+
+Give a ⭐️ if this project helped you!
